@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Tevents{% endblock %}
+
+{% block head %}Events{% endblock %}
+
+{% block content %}
+<div class="row">
+    {% for event in events %}
+        <div class="col-4">
+            <a href="{% url 'event-detail' event.pk %}">
+                <img class="img-fluid mw-50 mh-50" src="{% static 'mikubox.jpg' %}" alt="1234">
+                <p class="h4">{{ event.name }}</p>
+            </a>
+        </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}
