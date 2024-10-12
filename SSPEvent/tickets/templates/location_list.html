@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Tevents{% endblock %}
+
+{% block head %}Locations{% endblock %}
+
+{% block content %}
+<div class="album py-5 bg-body-tertiary">
+
+        
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 ">
+        {% for location in locations %}
+        <div class="col">
+            <div class="card mb-4 rounded">
+                <a class="text-decoration-none"  style="color:black" href="{% url 'location-detail' location.pk %}">
+                    <div class="w-100 overflow-hidden" style="max-height: 220px;">
+                        <img class="card-img-top img-fluid" src="{% static 'mikubox.jpg' %}" alt="1234">
+                    </div>
+                    <div class="card-body">
+                        <p class="h4">{{ location.name }}</p> 
+                        <p class="">{{ location.description }}</p> 
+                    </div>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

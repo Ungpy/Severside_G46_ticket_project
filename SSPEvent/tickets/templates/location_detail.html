@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Tevents{% endblock %}
+
+{% block head %}Events-detail{% endblock %}
+
+{% block content %}
+<div class="container-md shadow-lg mx-auto">
+<p class="h2">Name : {{location.name}}</p>
+<p class="h4">Description : {{location.description}}</p>
+<p class="h4">Capacity : {{location.capacity}}</p>
+<p class="h4">Price (per hour) : {{location.hour_price_rate}}</p>
+<p class="h4">Type : {{location.location_type.name}}</p>
+</div>
+
+</div>
+{% endblock %}

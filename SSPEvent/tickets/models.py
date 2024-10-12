@@ -2,19 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # Create your models here.
+class LocationType(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.TextField()
+
 class Locations(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=100)
     capacity = models.IntegerField(default=0)
     hour_price_rate = models.DecimalField(max_digits=12, decimal_places=2)
-
-
-
-class LocationType(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.TextField()
-
-
+    location_type = models.ForeignKey(LocationType, on_delete=models.SET_NULL, null=True)
 
 class Events(models.Model):
     Status_Choice = (

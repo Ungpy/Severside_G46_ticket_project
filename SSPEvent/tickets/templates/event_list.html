@@ -6,16 +6,26 @@
 {% block head %}Events{% endblock %}
 
 {% block content %}
-<div class="row">
-    {% for event in events %}
-        <div class="col-4">
-            <a href="{% url 'event-detail' event.pk %}">
-                <img class="img-fluid mw-50 mh-50" src="{% static 'mikubox.jpg' %}" alt="1234">
-                <p class="h4">{{ event.name }}</p>
-            </a>
+<div class="album py-5 bg-body-tertiary">
+
+        
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 ">
+            {% for event in events %}
+            <div class="col">
+                <div class="card mb-4 rounded">
+                    <a class="text-decoration-none"  style="color:black" href="{% url 'event-detail' event.pk %}">
+                        <div class="w-100 overflow-hidden" style="max-height: 220px;">
+                            <img class="card-img-top img-fluid" src="{% static 'n.png' %}" alt="1234">
+                        </div>
+                        <div class="card-body">
+                            <p class="h4">{{ event.name }}</p> 
+                            <p class="">{{ event.description }}</p> 
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-    {% endfor %}
 
 </div>
-
 {% endblock %}

@@ -3,8 +3,27 @@
 
 {% block title %}Tevents{% endblock %}
 
-{% block head %}Events{% endblock %}
+{% block head %}Events-detail{% endblock %}
 
 {% block content %}
+<div class="container-md shadow-lg mx-auto">
+<p class="h2">Name : {{event.name}}</p>
+<p class="h4">Description : {{event.description}}</p>
+<p class="h5">Organizer : {{event.organizer.name}}</p>
+<p class="h5">Approver : {{event.approver.username}}</p>
+<p class="h5">Location : {{event.locations.username}}</p>
+<p class="h5">Duration : {{event.event_start}}-{{event.event_end}}</p>
+<p class="h5">Status : {{event.event_status}}</p>
+</div>
 
+<div class="shadow-lg"><i class="bi bi-ticket"></i>
+    {% for ticket in tickets %}
+    <div class="container-md shadow-sm mx-auto row">
+        <div class="container-md justify-content-center">
+            <p class="h2">{{ticket.name}}</p>
+            <button class="btn btn-dark">Buy</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

@@ -7,18 +7,18 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-    <nav class="navbar bg-body-tertiary">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
         <div class="container-fluid">
-          <a class="navbar-brand">Tevents</a>
-          <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" name="search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
-          </form>
+          <a href= "{% url 'main-page' %}"class="navbar-brand">Tevents</a>
+          {% include 'nav.html' %}
         </div>
-      </nav>
-    <div class="container-md">
-      <p class="h4">{% block head %}{% endblock %}</h2>
-          {% block content %}{% endblock %}
+    </nav>
+    <div class="container-md py-2">
+      <p class="display-4 my-4">{% block head %}{% endblock %}</p>
+    </div>
+
+    <div class="container-md py-4">
+      {% block content %}{% endblock %}
     </div>
 </body>
 </html>
