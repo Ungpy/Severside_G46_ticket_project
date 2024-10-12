@@ -15,7 +15,12 @@
                 <div class="card mb-4 rounded">
                     <a class="text-decoration-none"  style="color:black" href="{% url 'event-detail' event.pk %}">
                         <div class="w-100 overflow-hidden" style="max-height: 220px;">
-                            <img class="card-img-top img-fluid" src="{% static 'n.png' %}" alt="1234">
+
+                            {% if event.cover_image %}
+                            <!-- <p>{{event.cover_image.url}}</p> -->
+                            <img class="card-img-top img-fluid" src="{{event.cover_image.url}}" alt="1234">
+                            {% endif %}
+                            
                         </div>
                         <div class="card-body">
                             <p class="h4">{{ event.name }}</p> 

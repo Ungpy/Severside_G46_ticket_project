@@ -3,6 +3,8 @@ from tickets.models import *
 from django.views import View
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
+from tickets.forms import *
+from django.urls import reverse
 # Create your views here.
 
 
@@ -12,8 +14,13 @@ from django.core.exceptions import ObjectDoesNotExist
 class EventsList(View):
     def get(self, request):
         # query event
-        events = Events.objects.all()
+        events = Event.objects.all()
 
+       
+        for event in events:
+            if event.cover_image == "/media/images/image.png":
+                event.cover_image = "/images/n.png"
+            event.save()
         # search
         query = request.GET
 
@@ -22,7 +29,7 @@ class EventsList(View):
         }
 
         if query.get("search"):
-            events = Events.objects.filter(
+            events = Event.objects.filter(
                 name__icontains=query.get("search")
             )
         
@@ -31,11 +38,11 @@ class EventsList(View):
 class EventDetails(View):
     def get(self, request, event_id):
         try:
-            event = Events.objects.get(pk=event_id)
-        except Events.DoesNotExist:
+            event = Event.objects.get(pk=event_id)
+        except Event.DoesNotExist:
             return render(request, '404.html')
         
-        tickets = Tickets.objects.filter(events_id=event.id) 
+        tickets = Ticket.objects.filter(events_id=event.id) 
         
         context = {
             "event" : event,
@@ -49,7 +56,7 @@ class EventDetails(View):
 
 class LocationList(View):
     def get(self, request):
-        locations = Locations.objects.all()
+        locations = Location.objects.all()
 
         context = {
             "locations" : locations
@@ -60,8 +67,8 @@ class LocationList(View):
 class LocationDetail(View):
     def get(self, request, location_id):
         try:
-            location = Locations.objects.get(pk=location_id)
-        except Locations.DoesNotExist:
+            location = Location.objects.get(pk=location_id)
+        except Location.DoesNotExist:
             return render(request, '404.html')
         
         
@@ -79,3 +86,24 @@ class UserProfile(View):
 class Checkout(View):
     def get(self, request):
         return True
+
+class CreateLocation(View):
+    def get(self, request):
+        return True
+
+class CreateEvent(View):
+    def get(self, request):
+        form = EventForm()
+        return render(request, 'create_event.html', {'form': form })
+    
+    def post(self, request):
+        # print(request.FILES, type(request.FILES))
+        print(request.POST)
+        
+        form = EventForm(request.POST, request.FILES)
+        if form.is_valid():
+            event = form.save()
+            url = reverse('event-detail', args=[event.id])
+            return redirect(url)
+  
+        return render(request, 'create_event.html', {'form': form })

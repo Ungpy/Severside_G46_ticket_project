@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+
+{% block content %}
+    <form class = "form-group" method="POST" enctype="multipart/form-data" action="{% url 'create-event' %}">
+        {% csrf_token %}
+        {{form}}
+        <button class="btn-success" type="submit">Save</button>
+    </form>
+    
+{% endblock %}

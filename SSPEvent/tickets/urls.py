@@ -10,5 +10,6 @@ urlpatterns = [
     path("location-list/<int:location_id>/", views.LocationDetail.as_view(), name="location-detail"),
     path("profile/", views.UserProfile.as_view(), name="userprofile"),
     path("checkout/", views.Checkout.as_view(), name="checkout"),
+    path("create-event/", views.CreateEvent.as_view(), name="create-event"),
 ]
 
