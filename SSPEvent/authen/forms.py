@@ -18,6 +18,7 @@ class MyUserCreateForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         for field_name in self.fields:
             self.fields[field_name].help_text = None
+
             
 class MemberInfoForm(ModelForm):
 

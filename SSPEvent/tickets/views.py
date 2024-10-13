@@ -92,7 +92,15 @@ class EventDetails(View):
 class LocationList(View):
     def get(self, request):
         locations = Location.objects.all()
+        
+        query = request.GET
 
+        
+
+        if query.get("search"):
+            locations = Location.objects.filter(
+                name__icontains=query.get("search")
+            )
         context = {
             "locations" : locations
         }
@@ -254,7 +262,7 @@ class ManageLocation(LoginRequiredMixin, PermissionRequiredMixin, View):
         return render(request, "manage_location.html", context)
     def post(self, request, location_id):
         location = Location.objects.get(pk=location_id)
-        form = LocationForm(instance=location, data=request.POST)
+        form = LocationForm(request.POST, request.FILES, instance=location,)
         if form.is_valid:
             new_location = form.save()
             print(new_location.capacity)
@@ -262,9 +270,9 @@ class ManageLocation(LoginRequiredMixin, PermissionRequiredMixin, View):
             return redirect(url)
         return render(request, "manage_location.html", {'form': form })
 
-class DeleteLocation(View):
+class DeleteLocation(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/authen/login/'
-    permission_required = ["delete_location"]
+    permission_required = ["tickets.delete_location"]
     def get(self, request, location_id):
         # query event
         location = Location.objects.get(pk=location_id)
@@ -278,9 +286,13 @@ class UserProfile(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/authen/login/'
     permission_required = ["tickets.change_user", "tickets.view_user"]
 
-    def get(self, request):
-        return True
+    def get(self, request, username):
+        user = User.objects.get(username=username)
 
+        context = {
+            'user' : user
+        }
+        return render(request, 'user_profile.html')
 class Checkout(View):
     def get(self, request):
         return True
