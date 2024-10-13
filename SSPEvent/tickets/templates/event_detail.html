@@ -6,7 +6,7 @@
 {% block head %}Events-detail{% endblock %}
 
 {% block content %}
-<div class="container-md shadow-lg mx-auto">
+<div class="container-md shadow-lg mx-auto p-5">
 <p class="h2">Name : {{event.name}}</p>
 <p class="h4">Description : {{event.description}}</p>
 <p class="h5">Organizer : {{event.organizer.username}}</p>
@@ -18,7 +18,7 @@
 
 <div class="container-md shadow-lg mx-auto p-5">
     {% if event.cover_image %}
-        <img class="img-fluid" style="max-height: 300px;" src="{{event.cover_image.url}}" alt="1234">
+        <img class="img-fluid" style="max-height: 600px;" src="{{event.cover_image.url}}" alt="1234">
     {% endif %}
 </div>
 
