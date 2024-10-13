@@ -5,9 +5,6 @@ from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from tickets.forms import *
 from django.urls import reverse
-from django.db import transaction
-from django.contrib.auth import authenticate, logout, login
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.forms import modelformset_factory
 
@@ -16,25 +13,6 @@ from django.forms import modelformset_factory
 
 
 #class Index(view):
-class Login(View):
-    def get(self, request):
-        form = AuthenticationForm()
-        return render(request, 'login.html', {"form": form})
-    
-    def post(self, request):
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            user = form.get_user() 
-            login(request,user)
-            return redirect('booking-list')  
-
-        return render(request,'login.html', {"form":form})
-
-
-class Logout(View):
-    def get(self, request):
-        logout(request)
-        return redirect('login')
 
 class EventsList(View):
     def get(self, request):
@@ -106,7 +84,7 @@ class LocationDetail(View):
 
 
 class CreateEvent(LoginRequiredMixin, View):
-    login_url = '/login/'
+    login_url = '/authen/login/'
     def get(self, request):
         form = EventForm()
         tform = TicketForm()
@@ -133,7 +111,7 @@ class CreateEvent(LoginRequiredMixin, View):
 
 
 class CreateLocation(LoginRequiredMixin, View):
-    login_url = '/login/'
+    login_url = '/authen/login/'
     def get(self, request):
         form = LocationForm()
         return render(request, 'create_location.html', {'form': form })
@@ -152,7 +130,7 @@ class CreateLocation(LoginRequiredMixin, View):
 
 
 class CreateLocationType(LoginRequiredMixin, View):
-    login_url = '/login/'
+    login_url = '/authen/login/'
     def get(self, request):
         form = LocationTypeForm()
         return render(request, 'create_locationtype.html', {'form': form })
@@ -171,7 +149,7 @@ class CreateLocationType(LoginRequiredMixin, View):
 
 
 class ManageEventList(LoginRequiredMixin, View):
-    login_url = '/login/'
+    login_url = '/authen/login/'
     def get(self, request):
         # query event
         events = Event.objects.filter(event_status="PENDING")
@@ -204,7 +182,7 @@ class ManageEventList(LoginRequiredMixin, View):
 
 
 class ManageLocation(LoginRequiredMixin, View):
-    login_url = '/login/'
+    login_url = '/authen/login/'
     def get(self, request, location_id):
         # query event
         location = Location.objects.get(pk=location_id)
@@ -237,7 +215,7 @@ class DeleteLocation(View):
 
 
 class UserProfile(LoginRequiredMixin, PermissionRequiredMixin, View):
-    login_url = '/login/'
+    login_url = '/authen/login/'
     def get(self, request):
         return True
 

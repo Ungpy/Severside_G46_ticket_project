@@ -61,3 +61,20 @@ class Employee(models.Model):
 class Payment(models.Model):
     member = models.ForeignKey('auth.User', related_name='tickets_payment_member', on_delete=models.CASCADE)
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+
+class MemberInfo(models.Model):
+    Gender_Choice = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('OTHER', 'Other')
+    )
+
+    member = models.ForeignKey('auth.User', related_name='tickets_memberinfo_member', on_delete=models.CASCADE)
+    gender = models.CharField(
+        max_length=10,
+        choices=Gender_Choice,
+        default='OTHER'
+    )
+    address = models.CharField(max_length=150)
+    contact = models.CharField(max_length=10)
+    
