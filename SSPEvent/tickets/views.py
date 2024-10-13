@@ -47,16 +47,29 @@ class EventDetails(View):
             return render(request, '404.html')
         
         tickets = Ticket.objects.filter(events_id=event.id) 
-        
+        form = TicketForm()
         context = {
             "event" : event,
-            "tickets" : tickets
+            "tickets" : tickets,
+            'form' : form
         }
 
         return render(request, "event_detail.html", context)
 
-    def post(self, request):
-        return True
+    def post(self, request, event_id):
+        print(event_id)
+        event = Event.objects.get(pk=event_id)
+        form = TicketForm(request.POST)
+        context = {
+            'form' : form
+        }
+        if form.is_valid():
+            Ticket.objects.create(
+                events = event, 
+                name= form.cleaned_data['name'], 
+                price =  form.cleaned_data['price'])
+        url = reverse('event-detail', args=[event_id])
+        return redirect(url)
 
 class LocationList(View):
     def get(self, request):
