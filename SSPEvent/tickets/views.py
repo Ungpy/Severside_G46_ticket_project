@@ -293,6 +293,34 @@ class UserProfile(LoginRequiredMixin, PermissionRequiredMixin, View):
             'user' : user
         }
         return render(request, 'user_profile.html')
-class Checkout(View):
-    def get(self, request):
-        return True
+
+
+class Checkout(LoginRequiredMixin, View):
+    login_url = '/authen/login/'
+    
+    def post(self, request):
+        ticket_id = request.POST['ticket_id']
+        event_id = request.POST['event_id']
+        ticket = Ticket.objects.get(pk=ticket_id)
+        event = Event.objects.get(pk=event_id)
+        print(request.POST)
+
+        context = {
+            'ticket' : ticket,
+            'event' : event
+        }
+
+
+
+        return render(request, 'checkout.html', context)
+
+
+class CreatePayments(LoginRequiredMixin, View):
+    login_url = '/authen/login/'
+    
+    def post(request, view):
+        ticket = request.POST['ticket']
+        event = request.POST['event']
+
+        if (ticket is not None) and (event is not None):
+            return True  

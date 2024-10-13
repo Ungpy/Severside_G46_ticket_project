@@ -6,9 +6,20 @@
 {% block head %}CheckOut{% endblock %}
 
 {% block content %}
-<div class="container-md shadow-lg mx-auto">
-<p class="h2">Name : {{event.name}}</p>
-</div>
+    <form action="{% url 'create-payment' %}" method="POST">
+        <div class="container-md shadow-lg mx-auto rounded">
+            <input type="hidden" name="event" value="{{event}}">
+            <input type="hidden" name="event" value="{{ticket}}">
+            <p class="h2">Firstname : {{request.user.first_name}}</p>
+            <p class="h2">Lastname : {{request.user.last_name}}</p>
+            <p class="h2">Event name : {{event.name}}</p>
+            <p class="h2">Ticket : {{ticket.name}}</p>
+            <p class="h2">Price : {{ticket.price}}</p>
+            <button type="submit" class="btn btn-success my-4">Checkout</button>
+        </div>
+    </form>
+
+
 
 
 {% endblock %}

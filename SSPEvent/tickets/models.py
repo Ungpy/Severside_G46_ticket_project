@@ -47,7 +47,8 @@ class Event(models.Model):
 class Ticket(models.Model):
     events = models.ForeignKey(Event, on_delete=models.CASCADE, null=False)
     name = models.CharField(max_length=50)
-    price = models.DecimalField(max_digits=12, decimal_places=2) 
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    amount = modelsIntegerField(min_value=0)
 
 
 
@@ -56,12 +57,6 @@ class Employee(models.Model):
     salary = models.DecimalField(max_digits=12, decimal_places=2)
     contact = models.CharField(max_length=10)
 
-
-
-
-class Payment(models.Model):
-    member = models.ForeignKey('auth.User', related_name='tickets_payment_member', on_delete=models.CASCADE)
-    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 
 class MemberInfo(models.Model):
     Gender_Choice = (
@@ -78,4 +73,5 @@ class MemberInfo(models.Model):
     )
     address = models.CharField(max_length=150)
     contact = models.CharField(max_length=10)
+    ticket = models.ManyToManyField(Ticket)
     
