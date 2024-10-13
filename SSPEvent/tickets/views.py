@@ -12,7 +12,9 @@ from django.forms import formset_factory
 # Create your views here.
 
 
-#class Index(view):
+class Index(View):
+    def get(self, request):
+        return render(request, 'index.html')
 
 class EventsList(View):
     def get(self, request):
