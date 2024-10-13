@@ -17,5 +17,7 @@ urlpatterns = [
     path("manage-location/<int:location_id>", views.ManageLocation.as_view(), name="manage-location"),
     path("delete-location/<int:location_id>", views.DeleteLocation.as_view(), name="delete-location"),
     path("profile/<str:username>", views.UserProfile.as_view(), name="user-profile"),
+    path("checkout/", views.Checkout.as_view(), name="checkout"),
+    path("create-payment/", views.Checkout.as_view(), name="checkout"),
 ]
 
