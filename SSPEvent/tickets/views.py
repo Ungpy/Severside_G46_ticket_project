@@ -86,7 +86,7 @@ class LocationDetail(View):
 class CreateEvent(LoginRequiredMixin, View):
     login_url = '/authen/login/'
     def get(self, request):
-        MTicketForm = formset_factory(form= TicketForm, extra=2)
+        MTicketForm = formset_factory(form= TicketForm, extra=1)
         form = EventForm()
         tform = MTicketForm()
         
@@ -100,7 +100,7 @@ class CreateEvent(LoginRequiredMixin, View):
     def post(self, request):
         # print(request.FILES, type(request.FILES))
         # print(request.POST)
-        MTicketForm = formset_factory(form= TicketForm, extra=2)
+        MTicketForm = formset_factory(form= TicketForm, extra=1)
         form = EventForm(request.POST, request.FILES)
         tform =  MTicketForm(request.POST)
         # print(request.POST)
@@ -116,11 +116,14 @@ class CreateEvent(LoginRequiredMixin, View):
             new_event = Event.objects.get(pk=event_id)
             if tform.is_valid():
                 for form1 in tform:
-                    Ticket.objects.create(events = new_event, name=form1.cleaned_data['name'], price = form1.cleaned_data['price'])
+                    if form1.cleaned_data['name']:
+                        Ticket.objects.create(events = new_event, name=form1.cleaned_data['name'], price = form1.cleaned_data['price'])
                 url = reverse('event-detail', args=[event.id])
 
                 return redirect(url)
-  
+        # for form1 in tform:
+
+
         return render(request, 'create_event.html', context)
 
 
