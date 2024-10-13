@@ -7,14 +7,30 @@ from tickets.forms import *
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.forms import formset_factory
+from datetime import datetime
 
 
 # Create your views here.
 
 
-class Index(View):
+#class Index(view):
+class MainPage(View):
     def get(self, request):
-        return render(request, 'index.html')
+        events_endsoon = Event.objects.filter(event_end__gt=datetime.now())
+        events_endsoon = events_endsoon.order_by("event_end")[:4]
+
+        events_startsoon = Event.objects.filter(event_start__lt=datetime.now())
+        events_startsoon = events_startsoon.order_by("event_start")[:4]
+
+        locations = Location.objects.all()
+
+        context = {
+            "locations" : locations,
+            "events_startsoon" : events_startsoon,
+            "events_endsoon" : events_endsoon
+        }
+        return render(request, "index.html", context)
+        
 
 class EventsList(View):
     def get(self, request):
@@ -98,8 +114,10 @@ class LocationDetail(View):
         return render(request, "location_detail.html", context)
 
 
-class CreateEvent(LoginRequiredMixin, View):
+class CreateEvent(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/authen/login/'
+    permission_required = ["tickets.add_event"]
+
     def get(self, request):
         MTicketForm = formset_factory(form= TicketForm, extra=1)
         form = EventForm()
@@ -142,8 +160,10 @@ class CreateEvent(LoginRequiredMixin, View):
         return render(request, 'create_event.html', context)
 
 
-class CreateLocation(LoginRequiredMixin, View):
+class CreateLocation(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/authen/login/'
+    permission_required = ["tickets.add_location"]
+
     def get(self, request):
         form = LocationForm()
         return render(request, 'create_location.html', {'form': form })
@@ -161,8 +181,10 @@ class CreateLocation(LoginRequiredMixin, View):
         return render(request, 'create_location.html', {'form': form })
 
 
-class CreateLocationType(LoginRequiredMixin, View):
+class CreateLocationType(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/authen/login/'
+    permission_required = ["tickets.add_locationtype"]
+
     def get(self, request):
         form = LocationTypeForm()
         return render(request, 'create_locationtype.html', {'form': form })
@@ -180,8 +202,10 @@ class CreateLocationType(LoginRequiredMixin, View):
         return render(request, 'create_locationtype.html', {'form': form })
 
 
-class ManageEventList(LoginRequiredMixin, View):
+class ManageEventList(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/authen/login/'
+    permission_required = ["tickets.manage_event"]
+
     def get(self, request):
         # query event
         events = Event.objects.filter(event_status="PENDING")
@@ -213,8 +237,10 @@ class ManageEventList(LoginRequiredMixin, View):
         return redirect(url)
 
 
-class ManageLocation(LoginRequiredMixin, View):
+class ManageLocation(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/authen/login/'
+    permission_required = ["tickets.change_location"]
+
     def get(self, request, location_id):
         # query event
         location = Location.objects.get(pk=location_id)
@@ -237,6 +263,8 @@ class ManageLocation(LoginRequiredMixin, View):
         return render(request, "manage_location.html", {'form': form })
 
 class DeleteLocation(View):
+    login_url = '/authen/login/'
+    permission_required = ["delete_location"]
     def get(self, request, location_id):
         # query event
         location = Location.objects.get(pk=location_id)
@@ -248,6 +276,8 @@ class DeleteLocation(View):
 
 class UserProfile(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/authen/login/'
+    permission_required = ["tickets.change_user", "tickets.view_user"]
+
     def get(self, request):
         return True
 

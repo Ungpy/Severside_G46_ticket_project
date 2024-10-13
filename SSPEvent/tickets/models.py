@@ -15,7 +15,8 @@ class Location(models.Model):
     capacity = models.IntegerField(default=0)
     hour_price_rate = models.DecimalField(max_digits=12, decimal_places=2)
     location_type = models.ForeignKey(LocationType, on_delete=models.SET_NULL, null=True)
-
+    cover_image = models.ImageField(null=True, blank=True, upload_to='images/location/')
+    
     def __str__(self):
         return self.name
 

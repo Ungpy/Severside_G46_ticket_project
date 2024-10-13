@@ -16,6 +16,12 @@
 <p class="h5">Status : {{event.event_status}}</p>
 </div>
 
+<div class="container-md shadow-lg mx-auto p-5">
+    {% if event.cover_image %}
+        <img class="img-fluid" style="max-height: 300px;" src="{{event.cover_image.url}}" alt="1234">
+    {% endif %}
+</div>
+
 <div class="shadow-lg"><i class="bi bi-ticket"></i>
     {% for ticket in tickets %}
     <div class="container-md shadow-sm mx-auto row my-4">

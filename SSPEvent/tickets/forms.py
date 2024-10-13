@@ -41,6 +41,7 @@ class LocationForm(ModelForm):
             "capacity",
             "hour_price_rate",
             "location_type",
+            "cover_image",
         ]
         
         widgets = {

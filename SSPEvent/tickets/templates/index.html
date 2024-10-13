@@ -1,2 +1,70 @@
 {% extends "layout.html" %}
 {% load static %}
+
+{% block title %}Tevents{% endblock %}
+
+{% block head %}Events{% endblock %}
+
+{% block content %}
+<div class="album py-5 bg-body-tertiary shadow">
+    <div class="d-flex justify-content-start">
+        <h1>End soon</h1>
+        <a href="{% url 'event-list' %}" class="btn btn-primary ms-5" type="button">See more</a>
+    </div>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3 ">
+            {% for event in events_startsoon %}       
+            <div class="col">
+                <div class="card mb-4 rounded">
+                    <a class="text-decoration-none"  style="color:black" href="{% url 'event-detail' event.pk %}">
+                        <div class="w-100 overflow-hidden" style="max-height: 220px;">
+
+                            {% if event.cover_image %}
+                            <!-- <p>{{event.cover_image.url}}</p> -->
+                            <img class="card-img-top img-fluid" src="{{event.cover_image.url}}" alt="1234">
+                            {% endif %}
+                            
+                        </div>
+                        <div class="card-body">
+                            <p class="h4">{{ event.name }}</p> 
+                            <p class="">{{ event.description }}</p>
+                            <p class="">Start: {{ event.event_start.day }}/{{ event.event_start.month }}/{{ event.event_start.year }} {{ event.event_start.time }}</p>
+                            <p class="">End: {{ event.event_end.day }}/{{ event.event_end.month }}/{{ event.event_end.year }} {{ event.event_end.time }}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+</div>
+
+
+<div class="album py-5 bg-body-tertiary shadow">
+    <div class="d-flex justify-content-start">
+        <h1>End soon</h1>
+    </div>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3 ">
+            {% for event in events_endsoon %}       
+            <div class="col">
+                <div class="card mb-4 rounded">
+                    <a class="text-decoration-none"  style="color:black" href="{% url 'event-detail' event.pk %}">
+                        <div class="w-100 overflow-hidden" style="max-height: 220px;">
+
+                            {% if event.cover_image %}
+                            <!-- <p>{{event.cover_image.url}}</p> -->
+                            <img class="card-img-top img-fluid" src="{{event.cover_image.url}}" alt="1234">
+                            {% endif %}
+                            
+                        </div>
+                        <div class="card-body">
+                            <p class="h4">{{ event.name }}</p> 
+                            <p class="">{{ event.description }}</p>
+                            <p class="">Start: {{ event.event_start.day }}/{{ event.event_start.month }}/{{ event.event_start.year }} {{ event.event_start.time }}</p>
+                            <p class="">End: {{ event.event_end.day }}/{{ event.event_end.month }}/{{ event.event_end.year }} {{ event.event_end.time }}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+</div>
+{% endblock %}

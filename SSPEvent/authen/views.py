@@ -5,6 +5,7 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from authen.forms import *
+from django.contrib.auth.models import Group
 
 
 # Create your views here.
@@ -38,10 +39,12 @@ class Register(View):
         form = MyUserCreateForm(data=request.POST)
         form_info = MemberInfoForm(data=request.POST)
         if form.is_valid() and form_info.is_valid():
-            print("eee")
+            # print("eee")
             user = form.save()
             form_info.instance.member = user
             form_info.save()
+            member_group = Group.objects.get(name='Member_normal') 
+            member_group.user_set.add(user)
             return redirect('login')  
 
         return render(request, 'register.html', {"form": form, "form_info":form_info})

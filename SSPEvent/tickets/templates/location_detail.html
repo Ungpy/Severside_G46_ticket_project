@@ -14,5 +14,11 @@
 <p class="h4">Type : {{location.location_type.name}}</p>
 </div>
 
+<div class="container-md shadow-lg mx-auto p-5">
+    {% if location.cover_image %}
+        <img class="img-fluid"  style="max-height: 300px;" src="{{location.cover_image.url}}" alt="1234">
+    {% endif %}
 </div>
+
+
 {% endblock %}
