@@ -6,9 +6,15 @@
 {% block content %}
     <form class = "form-group" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
+        {{ tform.management_form }}
         {{ form }}
         <p class="h4 my-4"> Tickets </p>
-        {{ tform }}
+        {% for form1 in tform %}
+            <label for="">Name:</label>
+            {{form1.name}}
+            <label for="">Price:</label>
+            {{form1.price}}
+        {% endfor %}
         <button class="btn btn-success my-4" type="submit">Save</button>
     </form>
     

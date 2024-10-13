@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from tickets.forms import *
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.forms import modelformset_factory
+from django.forms import formset_factory
 
 
 # Create your views here.
@@ -86,28 +86,42 @@ class LocationDetail(View):
 class CreateEvent(LoginRequiredMixin, View):
     login_url = '/authen/login/'
     def get(self, request):
+        MTicketForm = formset_factory(form= TicketForm, extra=2)
         form = EventForm()
-        tform = TicketForm()
-
+        tform = MTicketForm()
+        
         context = {
             'tform' : tform,
             'form' : form
         }
+        
         return render(request, 'create_event.html', context)
     
     def post(self, request):
         # print(request.FILES, type(request.FILES))
-        print(request.POST)
-        
+        # print(request.POST)
+        MTicketForm = formset_factory(form= TicketForm, extra=2)
         form = EventForm(request.POST, request.FILES)
+        tform =  MTicketForm(request.POST)
+        # print(request.POST)
+        context = {
+            'tform' : tform,
+            'form' : form
+        }
         if form.is_valid() and request.user.is_authenticated:
             event = form.save()
             event.organizer = request.user
+            event_id = event.id
             event.save()
-            url = reverse('event-detail', args=[event.id])
-            return redirect(url)
+            new_event = Event.objects.get(pk=event_id)
+            if tform.is_valid():
+                for form1 in tform:
+                    Ticket.objects.create(events = new_event, name=form1.cleaned_data['name'], price = form1.cleaned_data['price'])
+                url = reverse('event-detail', args=[event.id])
+
+                return redirect(url)
   
-        return render(request, 'create_event.html', {'form': form })
+        return render(request, 'create_event.html', context)
 
 
 class CreateLocation(LoginRequiredMixin, View):
