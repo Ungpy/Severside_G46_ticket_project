@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import logout, login
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
+from authen.forms import *
 
 
 # Create your views here.
@@ -29,14 +30,18 @@ class Logout(View):
     
 class Register(View):
     def get(self, request):
-        form = UserCreationForm()
-        return render(request, 'register.html', {"form": form})
+        form = MyUserCreateForm()
+        form_info = MemberInfoForm()
+        return render(request, 'register.html', {"form": form, "form_info":form_info})
     
     def post(self, request):
-        form = UserCreationForm(data=request.POST)
-        if form.is_valid():
+        form = MyUserCreateForm(data=request.POST)
+        form_info = MemberInfoForm(data=request.POST)
+        if form.is_valid() and form_info.is_valid():
             print("eee")
-            form.save()
+            user = form.save()
+            form_info.instance.member = user
+            form_info.save()
             return redirect('login')  
 
-        return render(request,'register.html', {"form":form})
+        return render(request, 'register.html', {"form": form, "form_info":form_info})
