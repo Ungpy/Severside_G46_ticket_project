@@ -18,8 +18,10 @@
                         <img class="card-img-top img-fluid" src="{% static 'mikubox.jpg' %}" alt="1234">
                     </div>
                     <div class="card-body">
-                        <p class="h4">{{ location.name }}</p> 
-                        <p class="">{{ location.description }}</p> 
+                        <p class="h4 card-title">{{ location.name }}</p> 
+                        <p class="card-text">{{ location.description }}</p>
+                        <a href="{% url 'manage-location' location.id%}"><input class = "btn btn-warning my-4 col-md-4 mx-auto" type="submit" value="Edit"/></a>
+                        <a href="{% url 'delete-location' location.id%}"><input class = "btn btn-danger my-4 col-md-3 mx-auto" type="submit" value="Delete"/></a>
                     </div>
                 </a>
             </div>

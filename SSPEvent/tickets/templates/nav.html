@@ -1,5 +1,7 @@
 {% load static %}
-  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+
+  <div class="collapse navbar-collapse" id="navbarNavDropdown navbarDropdownMenuLink">
+    
     <ul class="navbar-nav me-auto">
         <li class="nav-item active">
         <a class="nav-link" href="{% url 'event-list'%}">Events</a>
@@ -8,7 +10,19 @@
         <a class="nav-link" href="{% url 'location-list'%}">Location</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'create-event'%}">Create Event</a>
+          <a class="nav-link" href="#">My Profile</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+              Manage
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <li><a class="dropdown-item" href="{% url 'create-event' %}">Create Event</a></li>
+            <li><a class="dropdown-item" href="{% url 'create-location' %}">Create Location</a></li>
+            <li><a class="dropdown-item" href="{% url 'create-locationtype' %}">Create Location Type</a></li>
+            <li><a class="dropdown-item" href="{% url 'manage-event' %}">Approve Event</a></li>
+            
+          </ul>
         </li>
     </ul>
     <form class="d-flex my-auto" role="search">

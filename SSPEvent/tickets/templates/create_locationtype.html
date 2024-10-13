@@ -1,14 +1,12 @@
 {% extends 'layout.html' %}
 {% load static %}
-{% block title %}Create Event{% endblock %}
-{% block head %}Create Event{% endblock %}
+{% block title %}Create LocationType{% endblock %}
+{% block head %}Create LocationType{% endblock %}
 
 {% block content %}
     <form class = "form-group" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form }}
-        <p class="h4 my-4"> Tickets </p>
-        {{ tform }}
+        {{form}}
         <button class="btn btn-success my-4" type="submit">Save</button>
     </form>
     
