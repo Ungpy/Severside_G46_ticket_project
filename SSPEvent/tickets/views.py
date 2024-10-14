@@ -8,7 +8,10 @@ from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.forms import formset_factory
 from datetime import datetime
-
+from authen.forms import *
+from django.http import HttpResponseForbidden
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
+from datetime import timedelta
 
 # Create your views here.
 
@@ -16,10 +19,10 @@ from datetime import datetime
 #class Index(view):
 class MainPage(View):
     def get(self, request):
-        events_endsoon = Event.objects.filter(event_end__gt=datetime.now())
+        events_endsoon = Event.objects.filter(event_start__lt=datetime.now(),event_end__gt=datetime.now(), event_status__exact="APPROVED")
         events_endsoon = events_endsoon.order_by("event_end")[:4]
 
-        events_startsoon = Event.objects.filter(event_start__lt=datetime.now())
+        events_startsoon = Event.objects.filter(event_start__gt=datetime.now(), event_status__exact="APPROVED")
         events_startsoon = events_startsoon.order_by("event_start")[:4]
 
         locations = Location.objects.all()
@@ -35,8 +38,8 @@ class MainPage(View):
 class EventsList(View):
     def get(self, request):
         # query event
-        events = Event.objects.all()
-       
+        events = Event.objects.filter(event_start__gt=datetime.now(), event_status__exact="APPROVED")
+
         for event in events:
             if event.cover_image == "/media/images/image.png":
                 event.cover_image = "/images/n.png"
@@ -48,7 +51,9 @@ class EventsList(View):
 
         if query.get("search"):
             events = Event.objects.filter(
-                name__icontains=query.get("search")
+                name__icontains=query.get("search"),
+                event_start__gt=datetime.now(), 
+                event_status__exact="APPROVED"
             )
 
         context = {
@@ -63,13 +68,15 @@ class EventDetails(View):
             event = Event.objects.get(pk=event_id)
         except Event.DoesNotExist:
             return render(request, '404.html')
-        
+        duration = event.event_end-event.event_start
+        rent_price = int(( duration.total_seconds() / 3600 ) * float(event.locations.hour_price_rate))
         tickets = Ticket.objects.filter(events_id=event.id) 
         form = TicketForm()
         context = {
             "event" : event,
             "tickets" : tickets,
-            'form' : form
+            'form' : form,
+            'rent_price' : rent_price
         }
 
         return render(request, "event_detail.html", context)
@@ -77,6 +84,9 @@ class EventDetails(View):
     def post(self, request, event_id):
         print(event_id)
         event = Event.objects.get(pk=event_id)
+        create_by_user_id = event.organizer.id
+        if create_by_user_id != request.user.id:
+            return HttpResponseForbidden()
         form = TicketForm(request.POST)
         context = {
             'form' : form
@@ -85,7 +95,9 @@ class EventDetails(View):
             Ticket.objects.create(
                 events = event, 
                 name= form.cleaned_data['name'], 
-                price =  form.cleaned_data['price'])
+                price =  form.cleaned_data['price'],
+                amount =  form.cleaned_data['amount']
+                )
         url = reverse('event-detail', args=[event_id])
         return redirect(url)
 
@@ -94,9 +106,6 @@ class LocationList(View):
         locations = Location.objects.all()
         
         query = request.GET
-
-        
-
         if query.get("search"):
             locations = Location.objects.filter(
                 name__icontains=query.get("search")
@@ -114,9 +123,10 @@ class LocationDetail(View):
         except Location.DoesNotExist:
             return render(request, '404.html')
         
-        
+        events = Event.objects.filter(locations=location, event_end__gt=datetime.now()).order_by("event_end")
         context = {
             "location" : location,
+            'events': events
         }
 
         return render(request, "location_detail.html", context)
@@ -158,7 +168,7 @@ class CreateEvent(LoginRequiredMixin, PermissionRequiredMixin, View):
             if tform.is_valid():
                 for form1 in tform:
                     if form1.cleaned_data['name']:
-                        Ticket.objects.create(events = new_event, name=form1.cleaned_data['name'], price = form1.cleaned_data['price'])
+                        Ticket.objects.create(events = new_event, name=form1.cleaned_data['name'], price = form1.cleaned_data['price'],  amount = form1.cleaned_data['amount'])
                 url = reverse('event-detail', args=[event.id])
 
                 return redirect(url)
@@ -239,6 +249,7 @@ class ManageEventList(LoginRequiredMixin, PermissionRequiredMixin, View):
 
         event = Event.objects.get(pk=event_id)
         event.event_status = new_status
+        event.approver = request.user
         event.save()
 
         url = reverse('event-detail', args=[event_id])
@@ -263,7 +274,7 @@ class ManageLocation(LoginRequiredMixin, PermissionRequiredMixin, View):
     def post(self, request, location_id):
         location = Location.objects.get(pk=location_id)
         form = LocationForm(request.POST, request.FILES, instance=location,)
-        if form.is_valid:
+        if form.is_valid():
             new_location = form.save()
             print(new_location.capacity)
             url = reverse('location-detail', args=[location_id])
@@ -278,21 +289,25 @@ class DeleteLocation(LoginRequiredMixin, PermissionRequiredMixin, View):
         location = Location.objects.get(pk=location_id)
 
         location.delete()
-
-        return render(request, "location_list.html")
+    
+        return redirect("location-list")
 
 
 class UserProfile(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/authen/login/'
-    permission_required = ["tickets.change_user", "tickets.view_user"]
+    permission_required = ["auth.view_user", "auth.change_user"]
 
     def get(self, request, username):
         user = User.objects.get(username=username)
-
+        memberinfo = MemberInfo.objects.get(member= user)
+        event = Event.objects.filter(organizer=user)
+        payment = Ticket.objects.filter(memberinfo=memberinfo)
         context = {
-            'user' : user
+            'user' : user,
+            'events' : event,
+            'payments' : payment
         }
-        return render(request, 'user_profile.html')
+        return render(request, 'user_profile.html', context)
 
 
 class Checkout(LoginRequiredMixin, View):
@@ -300,6 +315,7 @@ class Checkout(LoginRequiredMixin, View):
     
     def post(self, request):
         ticket_id = request.POST['ticket_id']
+        print(ticket_id)
         event_id = request.POST['event_id']
         ticket = Ticket.objects.get(pk=ticket_id)
         event = Event.objects.get(pk=event_id)
@@ -309,18 +325,74 @@ class Checkout(LoginRequiredMixin, View):
             'ticket' : ticket,
             'event' : event
         }
-
-
-
         return render(request, 'checkout.html', context)
+        
 
 
 class CreatePayments(LoginRequiredMixin, View):
     login_url = '/authen/login/'
     
-    def post(request, view):
-        ticket = request.POST['ticket']
-        event = request.POST['event']
+    def post(self, request):
+        ticket_id = request.POST['ticket_id']
+        ticket = Ticket.objects.get(pk=ticket_id)
+        memberinfo = MemberInfo.objects.get(member__id=request.user.id)
+        if ticket is not None:
+            memberinfo.ticket.add(ticket)
+            ticket.amount -= 1
+            ticket.save()
 
-        if (ticket is not None) and (event is not None):
-            return True  
+            url = reverse('user-profile', args=[request.user.username])
+            return redirect(url)
+
+class EditProfile(LoginRequiredMixin, View):
+    login_url = '/authen/login/'
+
+    def get(self, request, username):
+        user = User.objects.get(username=username)
+        if user.id != request.user.id:
+            return HttpResponseForbidden()
+            
+        memberinfo = MemberInfo.objects.get(member__id=user.id)
+        userform = UpdateUserForm(instance=user)
+        infoform = MemberInfoForm(instance=memberinfo)
+        passwordform = PasswordChangeForm(user=user)
+
+        context = {
+            'userform' : userform,
+            'infoform' : infoform,
+            'passwordform' : passwordform,
+        }
+        return render(request, 'edit_profile.html', context)
+    def post(self, request, username):
+        user = User.objects.get(username=username)
+        if user.id != request.user.id:
+            return HttpResponseForbidden()
+        memberinfo = MemberInfo.objects.get(member__id=user.id)
+        userform = UpdateUserForm(request.POST, instance=user)
+        infoform = MemberInfoForm(request.POST, instance=memberinfo)
+        if userform.is_valid():
+            userform.save()
+            infoform.save()
+
+            url = reverse('user-profile', args=[username])
+            return redirect(url)
+        url = reverse('edit-profile', args=[username])
+        return redirect(url)
+        
+class ChangePassword(LoginRequiredMixin, PermissionRequiredMixin, View):
+    login_url = '/authen/login/'
+    permission_required = ["auth.view_user", "auth.change_user"]
+    def post(self, request, username):
+        user = User.objects.get(username=username)
+        userreq = request.user
+        if user.id != request.user.id:
+            return HttpResponseForbidden()
+            
+        form = PasswordChangeForm(request.user ,request.POST)
+        if form.is_valid():
+            form.save()
+            url = reverse('user-profile', args=[username])
+            return redirect(url)
+        url = reverse('edit-profile', args=[username])
+        return redirect(url)
+                

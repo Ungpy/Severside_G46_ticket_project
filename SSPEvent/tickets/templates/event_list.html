@@ -6,7 +6,7 @@
 {% block head %}Events{% endblock %}
 
 {% block content %}
-<div class="album py-5 bg-body-tertiary">
+<div class="album py-5 bg-body-tertiary p-5">
 
         
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 ">
@@ -25,6 +25,8 @@
                         <div class="card-body">
                             <p class="h4">{{ event.name }}</p> 
                             <p class="">{{ event.description }}</p>
+                            <p class="">Start: {{ event.event_start.day }}/{{ event.event_start.month }}/{{ event.event_start.year }} {{ event.event_start.time }}</p>
+                            <p class="">End: {{ event.event_end.day }}/{{ event.event_end.month }}/{{ event.event_end.year }} {{ event.event_end.time }}</p>
                         </div>
                     </a>
                 </div>

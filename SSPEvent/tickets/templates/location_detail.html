@@ -6,19 +6,29 @@
 {% block head %}Location-detail{% endblock %}
 
 {% block content %}
-<div class="container-md shadow-lg mx-auto">
+<div class="container-md shadow-lg mx-auto p-5">
 <p class="h2">Name : {{location.name}}</p>
 <p class="h4">Description : {{location.description}}</p>
 <p class="h4">Capacity : {{location.capacity}}</p>
 <p class="h4">Price (per hour) : {{location.hour_price_rate}}</p>
 <p class="h4">Type : {{location.location_type.name}}</p>
-</div>
 
-<div class="container-md shadow-lg mx-auto p-5">
+
+<div class="container-md mx-auto p-5 justify-content-center col-6 ">
     {% if location.cover_image %}
         <img class="img-fluid"  style="max-height: 300px;" src="{{location.cover_image.url}}" alt="1234">
     {% endif %}
 </div>
+</div>
+<div class="container-md shadow-lg mx-auto  my-5 p-5">
+    <p class="h2">Schedule Date</p>
+    {% if events %}
+        {% for event in events %}
+        <p>[{{event.name}}] Start: {{event.event_start.day}}/{{event.event_start.month}}/{{event.event_start.year}} {{event.event_start.time}}   End: {{event.event_end.day}}/{{event.event_end.month}}/{{event.event_end.year}} {{event.event_end.time}}</p>
+        {% endfor %}
+    {% endif %}
+</div>
+
 
 
 {% endblock %}

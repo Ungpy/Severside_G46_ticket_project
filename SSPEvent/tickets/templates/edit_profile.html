@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block title %}Edit Profile{% endblock %}
+{% block head %}Edit Profile{% endblock %}
+
+{% block content %}
+    <form class = "form-group" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="user_id" value="{{request.user.id}}">
+        {% csrf_token %}
+        <label for="">Name:</label>
+        {{userform.username}}
+        <label for="">Firstname:</label>
+        {{userform.first_name}}
+        <label for="">Lastname:</label>
+        {{userform.last_name}}
+        <label for="">Email:</label>
+        {{userform.email}}
+        {{infoform}}
+        <button class="btn btn-success my-4" type="submit">Save</button>
+    </form>
+
+    <form class = "form-group" method="POST" enctype="multipart/form-data" action="{% url 'change-password' user.username%}">
+        <input type="hidden" name="user_id" value="{{request.user.id}}">
+        {% csrf_token %}
+        <p class="h4">Change Password</p>
+        <label for="">password:</label>
+        {{passwordform.old_password}}
+        <label for="">new password:</label>
+        {{passwordform.new_password1}}
+        <label for="">comfirm password</label>
+        {{passwordform.new_password2}}
+        <button class="btn btn-success my-4" type="submit">Change password</button>
+    </form>
+    
+{% endblock %}

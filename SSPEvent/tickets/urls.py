@@ -14,10 +14,12 @@ urlpatterns = [
     path("create-location/", views.CreateLocation.as_view(), name="create-location"),
     path("create-locationtype/", views.CreateLocationType.as_view(), name="create-locationtype"),
     path("manage-event/", views.ManageEventList.as_view(), name="manage-event"),
-    path("manage-location/<int:location_id>", views.ManageLocation.as_view(), name="manage-location"),
-    path("delete-location/<int:location_id>", views.DeleteLocation.as_view(), name="delete-location"),
-    path("profile/<str:username>", views.UserProfile.as_view(), name="user-profile"),
+    path("manage-location/<int:location_id>/", views.ManageLocation.as_view(), name="manage-location"),
+    path("delete-location/<int:location_id>/", views.DeleteLocation.as_view(), name="delete-location"),
+    path("profile/<str:username>/", views.UserProfile.as_view(), name="user-profile"),
     path("checkout/", views.Checkout.as_view(), name="checkout"),
-    path("create-payment/", views.Checkout.as_view(), name="checkout"),
+    path("create-payment/", views.CreatePayments.as_view(), name="create-payment"),
+    path("profile/<str:username>/edit-profile/", views.EditProfile.as_view(), name="edit-profile"),
+    path("profile/<str:username>/edit-profile/change-password", views.ChangePassword.as_view(), name="change-password"),
 ]
 

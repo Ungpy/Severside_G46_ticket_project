@@ -1,8 +1,71 @@
 {% extends 'layout.html' %}
 {% load static %}
 {% block title %}Profile{% endblock %}
-{% block head %}Profile{% endblock %}
+{% block head %}
+<strong>Profile</strong>
+{% if perms.auth.change_user and request.user.username == user.username %}
+<a href="edit-profile">
+    <button type ="button" class="btn btn-secondary col-md mt-4 align-self-end">Edit Profile</button>
+</a>
+{% endif %}
+{% endblock %}
 
 {% block content %}
-    
+
+    <div class="container-md">
+        <p class ="h5">Name : {{user.username}} </p></p>
+        <p class ="h5">Firstname : {{user.first_name}} </p>
+        <p class ="h5">Lastname : {{user.last_name}} </p>
+    </div>
+{% if perms.auth.change_user and request.user.username == user.username %}
+    <div class="container-md my-4">
+        <p class="h3 my-4">Event</p>
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Event</th>
+                <th scope="col">Description</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for event in events %}
+              <tr>
+                <th scope="row">{{event.id}}</th>
+                <td>{{event.name}}</td>
+                <td>{{event.description}}</td>
+                <td>{{event.event_status}}</td>
+              </tr>
+            {% endfor %}
+
+            </tbody>
+          </table>
+    </div>
+
+    <div class="container-md my-4">
+        <p class="h3 my-4">Payment History</p>
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Event</th>
+                <th scope="col">Ticket</th>
+                <th scope="col">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for payment in payments %}
+              <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{payment.events.name}}</td>
+                <td>{{payment.name}}</td>
+                <td>{{payment.price}}</td>
+              </tr>
+            {% endfor %}
+
+            </tbody>
+          </table>
+    </div>
+{% endif %}
 {% endblock %}

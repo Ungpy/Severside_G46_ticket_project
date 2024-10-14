@@ -22,8 +22,12 @@
                     <div class="card-body">
                         <p class="h4 card-title">{{ location.name }}</p> 
                         <p class="card-text">{{ location.description }}</p>
+                        {% if perms.tickets.change_location %}
                         <a href="{% url 'manage-location' location.id%}"><input class = "btn btn-warning my-4 col-md-4 mx-auto" type="submit" value="Edit"/></a>
+                        {% endif %}
+                        {% if perms.tickets.delete_location %}
                         <a href="{% url 'delete-location' location.id%}"><input class = "btn btn-danger my-4 col-md-3 mx-auto" type="submit" value="Delete"/></a>
+                        {% endif %}
                     </div>
                 </a>
             </div>

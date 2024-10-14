@@ -7,9 +7,11 @@
 
 {% block content %}
     <form action="{% url 'create-payment' %}" method="POST">
+        {% csrf_token %}
         <div class="container-md shadow-lg mx-auto rounded">
-            <input type="hidden" name="event" value="{{event}}">
-            <input type="hidden" name="event" value="{{ticket}}">
+            <input type="hidden" name="event_id" value="{{event.id}}">
+            <input type="hidden" name="ticket_id" value="{{ticket.id}}">
+
             <p class="h2">Firstname : {{request.user.first_name}}</p>
             <p class="h2">Lastname : {{request.user.last_name}}</p>
             <p class="h2">Event name : {{event.name}}</p>

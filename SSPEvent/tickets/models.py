@@ -48,7 +48,7 @@ class Ticket(models.Model):
     events = models.ForeignKey(Event, on_delete=models.CASCADE, null=False)
     name = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=12, decimal_places=2)
-    amount = modelsIntegerField(min_value=0)
+    amount = models.IntegerField()
 
 
 

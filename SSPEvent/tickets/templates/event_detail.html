@@ -10,36 +10,56 @@
 <p class="h2">Name : {{event.name}}</p>
 <p class="h4">Description : {{event.description}}</p>
 <p class="h5">Organizer : {{event.organizer.username}}</p>
-<p class="h5">Approver : {{event.approver.username}}</p>
+<p class="h5">Approver : {{event.approver.first_name}}</p>
 <p class="h5">Location : {{event.locations.name}}</p>
 <p class="h5">Duration : {{event.event_start}}-{{event.event_end}}</p>
+{% if request.user == event.organizer %}
+<p class="h5">Cost for rent : {{ rent_price }} Baht</p>
+{% endif %}
 <p class="h5">Status : {{event.event_status}}</p>
-</div>
 
-<div class="container-md shadow-lg mx-auto p-5">
+
+<div class="container-md  mx-auto p-5 col-6">
     {% if event.cover_image %}
         <img class="img-fluid" style="max-height: 600px;" src="{{event.cover_image.url}}" alt="1234">
     {% endif %}
 </div>
 
-<div class="shadow-lg"><i class="bi bi-ticket"></i>
-    {% for ticket in tickets %}
-    <div class="container-md shadow-sm mx-auto row my-4">
-        <div class="container-md justify-content-center my-4">
-            <p class="h2">{{ticket.name}}</p>
-            <p class="h2">{{ticket.price}}</p>
-            <form name="form-group" method="POST" action="{% url 'checkout'%}">
-                {% csrf_token %}
-                <input type="hidden" name="event_id" value="{{event.id}}">
-                <input type="hidden" name="ticket_id" value="{{ticket.id}}">
-                <button class="btn btn-success my-4 " type="submit">Add</button>
-            </form>
-        </div>
-    </div>
-    {% endfor %}
 </div>
 
-<div class= "shadow-lg px-4 py-4">
+<div class="contianer-md shadow-lg my-4 px-4 py-4">
+    <p class="h2 pt-4 mx-2">Tickets</p>
+    {% for ticket in tickets %}
+        {% if ticket.amount > 0 %}    
+            <div class="container-md shadow-sm mx-auto row my-4 border border-warning rounded">
+                <div class="container-md justify-content-center row row-cols-md-4 my-4">
+                    <div class="col-md-4 "><p class="h3 ">{{ticket.name}}</p></div>
+                    <div class="col-md-3 "><p class="h3 ">{{ticket.price}} Baht</p></div>
+                    <div class="col-md-3 "><p class="h3 ">{{ticket.amount}} ticket left</p></div>
+                    <div class="col-md-2 ">
+                        <form name="form-group  ms-auto" method="POST" action="{% url 'checkout'%}">
+                            {% csrf_token %}
+                            <input type="hidden" name="event_id" value="{{event.id}}">
+                            <input type="hidden" name="ticket_id" value="{{ticket.id}}">
+                            <button class="btn btn-dark col-md-12" type="submit">Buy</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="container-md shadow-sm mx-auto row my-4" style="color:gray">
+                <div class="container-md justify-content-center row row-cols-md-4 my-4">
+                    <div class="col-md-4"><p class="h3 ">{{ticket.name}}</p></div>
+                    <div class="col-md-3"><p class="h3 ">{{ticket.price}} Baht</p></div>
+                    <div class="col-md-3"><p class="h3 ">{{ticket.amount}} ticket left</p></div>
+                    <div class="col-md-2"></div>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% if perms.tickets.add_ticket and event.organizer == request.user %}
+<div class= "shadow-lg px-4 py-4 my-5">
     <p class="h4">Add Ticket</p>
 <form class = "form-group px-2 py-2" action="" method="post">
 
@@ -48,4 +68,5 @@
     <button class="btn btn-success my-4 " type="submit">Add</button>
 </form>
 </div>
+{% endif %}
 {% endblock %}
