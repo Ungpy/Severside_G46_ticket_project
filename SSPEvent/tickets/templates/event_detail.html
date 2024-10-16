@@ -8,17 +8,17 @@
 {% block content %}
 <div class="container-md shadow-lg mx-auto p-5">
 <p class="h2">Name : {{event.name}}</p>
-<p class="h4">Description : {{event.description}}</p>
 <p class="h5">Organizer : {{event.organizer.username}}</p>
-<p class="h5">Approver : {{event.approver.first_name}}</p>
 <p class="h5">Location : {{event.locations.name}}</p>
-<p class="h5">Duration : {{event.event_start}}-{{event.event_end}}</p>
+<p class="h5">Duration : {{event.event_start}} - {{event.event_end}}</p>
 {% if request.user == event.organizer %}
 <p class="h5">Cost for rent : {{ rent_price }} Baht</p>
 {% endif %}
-<p class="h5">Status : {{event.event_status}}</p>
-
-
+<p class="h5" style="{% if event.event_status == 'APPROVED' %}color: green;{% elif event.event_status == 'PENDING' %}color: DarkKhaki;{% else %}color: red;{% endif %}">Status : {{event.event_status}}</p>
+<p class="h5">Approver : {{event.approver.first_name}}</p>
+<br>
+<p class="h4" >Description : </p>
+<p class="h5">{{event.description}}</p>
 <div class="container-md  mx-auto p-5 col-6">
     {% if event.cover_image %}
         <img class="img-fluid" style="max-height: 600px;" src="{{event.cover_image.url}}" alt="1234">
@@ -41,7 +41,9 @@
                             {% csrf_token %}
                             <input type="hidden" name="event_id" value="{{event.id}}">
                             <input type="hidden" name="ticket_id" value="{{ticket.id}}">
+                            {% if event.event_status == "APPROVED" %}
                             <button class="btn btn-dark col-md-12" type="submit">Buy</button>
+                            {% endif %}
                         </form>
                     </div>
                 </div>

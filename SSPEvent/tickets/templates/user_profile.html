@@ -35,7 +35,10 @@
                 <th scope="row">{{event.id}}</th>
                 <td>{{event.name}}</td>
                 <td>{{event.description}}</td>
-                <td>{{event.event_status}}</td>
+                <td {% if event.event_status == "APPROVED"%}class="text-success"
+                {% elif event.event_status == "PENDING"%}class="text-warning"
+                {% else %}class="text-danger"{%endif%} 
+                >{{event.event_status}}</td>
               </tr>
             {% endfor %}
 
@@ -56,11 +59,12 @@
             </thead>
             <tbody>
             {% for payment in payments %}
+              
               <tr>
-                <th scope="row">{{ forloop.counter }}</th>
-                <td>{{payment.events.name}}</td>
-                <td>{{payment.name}}</td>
-                <td>{{payment.price}}</td>
+                <th scope="row" {% if forloop.last %}class="text-success" {% endif %}>{{ forloop.counter }}</th>
+                <td {% if forloop.last %}class="text-success" {% endif %}>{{payment.events.name}}</td>
+                <td {% if forloop.last %}class="text-success" {% endif %}>{{payment.name}}</td>
+                <td {% if forloop.last %}class="text-success" {% endif %}>{{payment.price}}</td>
               </tr>
             {% endfor %}
 

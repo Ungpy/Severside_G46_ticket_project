@@ -9,9 +9,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.forms import formset_factory
 from datetime import datetime
 from authen.forms import *
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, Http404, HttpResponseNotFound, HttpResponseBadRequest
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
-from datetime import timedelta
+from datetime import *
 
 # Create your views here.
 
@@ -30,7 +30,7 @@ class MainPage(View):
         context = {
             "locations" : locations,
             "events_startsoon" : events_startsoon,
-            "events_endsoon" : events_endsoon
+            "events_endsoon" : events_endsoon,
         }
         return render(request, "index.html", context)
         
@@ -40,10 +40,7 @@ class EventsList(View):
         # query event
         events = Event.objects.filter(event_start__gt=datetime.now(), event_status__exact="APPROVED")
 
-        for event in events:
-            if event.cover_image == "/media/images/image.png":
-                event.cover_image = "/images/n.png"
-            event.save()
+        
         # search
         query = request.GET
 
@@ -53,11 +50,12 @@ class EventsList(View):
             events = Event.objects.filter(
                 name__icontains=query.get("search"),
                 event_start__gt=datetime.now(), 
-                event_status__exact="APPROVED"
+                event_status__exact="APPROVED",
             )
 
         context = {
-            "events" : events
+            "events" : events,
+            "search_enable" : True,
         }
         
         return render(request, "event_list.html", context)
@@ -111,7 +109,8 @@ class LocationList(View):
                 name__icontains=query.get("search")
             )
         context = {
-            "locations" : locations
+            "locations" : locations,
+            "search_enable" : True,
         }
         return render(request, "location_list.html", context)
     
@@ -121,7 +120,10 @@ class LocationDetail(View):
         try:
             location = Location.objects.get(pk=location_id)
         except Location.DoesNotExist:
-            return render(request, '404.html')
+            # return render(request, '404.html')
+            raise Http404
+        
+
         
         events = Event.objects.filter(locations=location, event_end__gt=datetime.now()).order_by("event_end")
         context = {
@@ -238,7 +240,8 @@ class ManageEventList(LoginRequiredMixin, PermissionRequiredMixin, View):
             )
         
         context = {
-            "events" : events
+            "events" : events,
+            "search_enable" : True,
         }
 
         return render(request, "manage-event.html", context)
@@ -267,12 +270,15 @@ class ManageLocation(LoginRequiredMixin, PermissionRequiredMixin, View):
         form = LocationForm(instance=location)
 
         context = {
-            'form' : form
+            'form' : form,
         }
 
         return render(request, "manage_location.html", context)
     def post(self, request, location_id):
-        location = Location.objects.get(pk=location_id)
+        try:
+            location = Location.objects.get(pk=location_id)
+        except Location.DoesNotExist:
+            raise Http404()
         form = LocationForm(request.POST, request.FILES, instance=location,)
         if form.is_valid():
             new_location = form.save()
@@ -305,44 +311,61 @@ class UserProfile(LoginRequiredMixin, PermissionRequiredMixin, View):
         context = {
             'user' : user,
             'events' : event,
-            'payments' : payment
+            'payments' : payment,
         }
         return render(request, 'user_profile.html', context)
 
 
-class Checkout(LoginRequiredMixin, View):
+class Checkout(LoginRequiredMixin, PermissionRequiredMixin ,View):
     login_url = '/authen/login/'
-    
+    permission_required = ["tickets.view_ticket"]
+
     def post(self, request):
         ticket_id = request.POST['ticket_id']
         print(ticket_id)
         event_id = request.POST['event_id']
         ticket = Ticket.objects.get(pk=ticket_id)
         event = Event.objects.get(pk=event_id)
-        print(request.POST)
+        if event.event_status == "APPROVED":
+            print(request.POST)
 
-        context = {
-            'ticket' : ticket,
-            'event' : event
-        }
-        return render(request, 'checkout.html', context)
+            context = {
+                'ticket' : ticket,
+                'event' : event
+            }
+            return render(request, 'checkout.html', context)
+        return HttpResponseForbidden()
         
 
 
-class CreatePayments(LoginRequiredMixin, View):
+class CreatePayments(LoginRequiredMixin,PermissionRequiredMixin, View):
     login_url = '/authen/login/'
-    
+    permission_required = ["tickets.view_ticket"]
+
     def post(self, request):
         ticket_id = request.POST['ticket_id']
         ticket = Ticket.objects.get(pk=ticket_id)
-        memberinfo = MemberInfo.objects.get(member__id=request.user.id)
-        if ticket is not None:
+        print(ticket.name)
+        try:
+            memberinfo = MemberInfo.objects.get(member__id=request.user.id)
+        except MemberInfo.DoesNotExist:
+            raise Http404("MemberInfo not found for this user id " + str(request.user.id))
+
+        check_memberticket = Ticket.objects.filter(memberinfo=memberinfo.id, id=ticket_id)
+        print(memberinfo)
+
+        if ticket is not None and not check_memberticket:
             memberinfo.ticket.add(ticket)
             ticket.amount -= 1
             ticket.save()
 
             url = reverse('user-profile', args=[request.user.username])
             return redirect(url)
+        # return HttpResponseBadRequest("")
+        context = {
+            "errortext" : "You can't buy same ticket tier more than once"
+        }
+        return render(request, '404.html', context)
 
 class EditProfile(LoginRequiredMixin, View):
     login_url = '/authen/login/'
@@ -370,14 +393,22 @@ class EditProfile(LoginRequiredMixin, View):
         memberinfo = MemberInfo.objects.get(member__id=user.id)
         userform = UpdateUserForm(request.POST, instance=user)
         infoform = MemberInfoForm(request.POST, instance=memberinfo)
-        if userform.is_valid():
+        print(userform.is_valid(), user, request.POST)
+        if userform.is_valid() and infoform.is_valid():
             userform.save()
             infoform.save()
 
             url = reverse('user-profile', args=[username])
             return redirect(url)
-        url = reverse('edit-profile', args=[username])
-        return redirect(url)
+
+        context = {
+            'userform' : userform,
+            'infoform' : infoform,
+            'passwordform' : PasswordChangeForm(user=user),
+        }
+        # url = reverse('edit-profile', args=[username],  )
+        # return redirect(url)
+        return render(request, 'edit_profile.html', context)
         
 class ChangePassword(LoginRequiredMixin, PermissionRequiredMixin, View):
     login_url = '/authen/login/'
