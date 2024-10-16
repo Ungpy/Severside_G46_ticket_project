@@ -17,7 +17,9 @@
               Manage
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            {% if perms.tickets.add_event %}
             <li><a class="dropdown-item" href="{% url 'create-event' %}">Create Event</a></li>
+            {% endif %}
             {% if perms.tickets.add_location %}
             <li><a class="dropdown-item" href="{% url 'create-location' %}">Create Location</a></li>
             {% endif %}
