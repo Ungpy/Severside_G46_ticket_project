@@ -304,7 +304,10 @@ class UserProfile(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = ["auth.view_user", "auth.change_user"]
 
     def get(self, request, username):
-        user = User.objects.get(username=username)
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return render(request, '404.html', {'errortext':"Not found this user"})
         memberinfo = MemberInfo.objects.get(member= user)
         event = Event.objects.filter(organizer=user)
         payment = Ticket.objects.filter(memberinfo=memberinfo)
