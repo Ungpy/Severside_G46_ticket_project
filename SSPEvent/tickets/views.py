@@ -38,7 +38,7 @@ class MainPage(View):
 class EventsList(View):
     def get(self, request):
         # query event
-        events = Event.objects.filter(event_start__gt=datetime.now(), event_status__exact="APPROVED")
+        events = Event.objects.filter(event_end__gt=datetime.now(), event_status__exact="APPROVED")
 
         
         # search
